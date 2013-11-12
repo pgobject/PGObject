@@ -1,0 +1,21 @@
+Revision history for PGObject
+
+1.11    2013-06-05
+        1. Some additional safety checks in the database tests
+
+1.10    2013-05-30
+        1. Added type registration system.
+        2. Added function prefixes for object types.
+        3. Added documentation of namespace layout.
+
+1.01    2013-05-25
+        1. Minor changes to test cases to let them finish cleanly when the db is
+           not available.
+        2. Minor documentation changes.
+        
+1.00    2013-05-24
+        First version, released on an unsuspecting world.
+        Differences from LedgerSMB's interface include:
+           1.  Function information is modularized into its own api
+           2.  windowed aggs with rows unbounded preceding are supported
+           3.  Database handle management outside scope of this module
