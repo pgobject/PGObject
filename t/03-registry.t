@@ -1,4 +1,4 @@
-use Test::More tests => 14;
+use Test::More tests => 18;
 use PGObject;
 use Test::Exception;
 
@@ -48,5 +48,14 @@ my $test_registry = {
          
                },
 };
+
+is(PGObject->get_registered(registry => 'bar', pg_type => 'bar'), undef,
+   "get_registered_type returns undef on non-registered type");
+is(PGObject->get_registered(registry => 'default', pg_type => 'foo'), 'Foo2',
+   "get_registered_type returns Foo on registered type, explicit default reg.");
+is(PGObject->get_registered(registry => 'bar', pg_type => 'foo'), 'Foo',
+   "get_registered_type returns Foo on registered type, bar reg.");
+is(PGObject->get_registered(pg_type => 'foo'), 'Foo2',
+   "get_registered_type returns Foo on registered type, implicit default reg.");
 
 is_deeply(PGObject->get_type_registry(), $test_registry, 'Correct registry');

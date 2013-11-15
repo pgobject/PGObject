@@ -21,4 +21,4 @@ requires:
   DBD::Pg: 2
   Test::Exception: 0
   Test::More: 0
-version: 1.2
+version: 1.3
