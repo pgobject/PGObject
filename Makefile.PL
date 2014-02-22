@@ -9,6 +9,9 @@ WriteMakefile(
     VERSION_FROM        => 'lib/PGObject.pm',
     ABSTRACT_FROM       => 'lib/PGObject.pm',
     PL_FILES            => {},
+    ($ExtUtils::MakeMaker::VERSION >= 6.3002
+      ? ('LICENSE'=> 'bsd')
+      : ()),
     PREREQ_PM           => { 
                            'DBD::Pg'    => 2.0,
                            'Test::More' => 0,
