@@ -350,7 +350,8 @@ sub call_procedure {
        my @names = @{$sth->{NAME_lc}};
        my $i = 0;
        for my $type (@types){
-           $row->{$names[$i]} = process_type($row->{$names[$i]}, $type);
+           $row->{$names[$i]} 
+                 = process_type($row->{$names[$i]}, $type, $registry);
            ++$i;
        }
        
@@ -359,7 +360,7 @@ sub call_procedure {
     return @rows;      
 }
 
-=head2 process_type($val, $type)
+=head2 process_type($val, $type, $registry)
 
 If $type is registered, returns "$type"->from_db($val).  Otherwise returns
 $val.  If $val is an arrayref, loops through it for every item and strips 
@@ -370,13 +371,13 @@ This module should generally only be used by type handlers or by this module.
 =cut
 
 sub process_type {
-    my ($val, $type) = @_;
+    my ($val, $type, $registry) = @_;
 
     # Array handling as we'd get this usually from DBD::Pg or equivalent
     if (ref $val eq ref []){
        $type =~ s/(\[|\])*$//;
        my $newval = [];
-       push @$newval process_type($_, $type) for @$val;
+       push @$newval, process_type($_, $type) for @$val;
        return $newval;
     }
 

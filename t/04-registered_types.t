@@ -1,4 +1,4 @@
-use Test::More tests => 7;
+use Test::More tests => 8;
 use DBI;
 use PGObject;
 
@@ -12,28 +12,40 @@ is(PGObject->register_type(
        "Basic type registration");
 
 
-# Initial db setup
-my $dbh1 = DBI->connect('dbi:Pg:', 'postgres') ;
 
-$dbh1->do('CREATE DATABASE pgobject_test_db') if $dbh1;
+SKIP: {
+    skip 'No database connection', 4 unless $ENV{DB_TESTING};
 
+    # Initial db setup
 
-
-my $dbh = DBI->connect('dbi:Pg:dbname=pgobject_test_db', 'postgres') if $dbh1;
-
+    my $dbh1 = DBI->connect('dbi:Pg:', 'postgres') ;
 
 
-$dbh->{pg_server_prepare} = 0 if $dbh;
+    $dbh1->do('CREATE DATABASE pgobject_test_db') if $dbh1;
 
-# Function to test.
 
-$dbh->do('
+
+
+    my $dbh = DBI->connect('dbi:Pg:dbname=pgobject_test_db', 'postgres') if $dbh1;
+
+
+
+
+    $dbh->{pg_server_prepare} = 0 if $dbh;
+
+
+    # Functions to test.
+
+
+    $dbh->do('
     CREATE OR REPLACE FUNCTION test_int() returns int language sql as $$
     SELECT 1000;
     $$') if $dbh;
 
-SKIP: {
-    skip 'No database connection', 3 unless $dbh;
+    $dbh->do('
+    CREATE OR REPLACE FUNCTION test_ints() returns int[] language sql as $$
+    SELECT array[1000::int, 100, 10];
+    $$') if $dbh;
     my ($result) = PGObject->call_procedure(
         funcname   => 'test_int',
         args       => [],
@@ -48,6 +60,16 @@ SKIP: {
         dbh        => $dbh,
         registry   => 'test1',
     );
+
+    ok $result = PGObject->call_procedure(
+        funcname   => 'test_ints',
+        args       => [],
+        dbh        => $dbh,
+    );
+
+    is($result->{test_int}, [8, 8, 8], 
+           'Array members handled as registered types');
+
 
     is($result->{test_int}, 8, 'Correct handling of override, named registry');
 
