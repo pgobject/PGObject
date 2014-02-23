@@ -1,4 +1,4 @@
-use Test::More tests => 8;
+use Test::More tests => 11;
 use DBI;
 use PGObject;
 
@@ -14,7 +14,7 @@ is(PGObject->register_type(
 
 
 SKIP: {
-    skip 'No database connection', 4 unless $ENV{DB_TESTING};
+    skip 'No database connection', 7 unless $ENV{DB_TESTING};
 
     # Initial db setup
 
@@ -61,17 +61,18 @@ SKIP: {
         registry   => 'test1',
     );
 
-    ok $result = PGObject->call_procedure(
+
+    is($result->{test_int}, 8, 'Correct handling of override, named registry');
+
+    ok(($result) = PGObject->call_procedure(
         funcname   => 'test_ints',
         args       => [],
         dbh        => $dbh,
-    );
+    ));
 
-    is($result->{test_int}, [8, 8, 8], 
-           'Array members handled as registered types');
-
-
-    is($result->{test_int}, 8, 'Correct handling of override, named registry');
+    for (0 .. 2) {
+        is $result->{test_ints}->[$_], 4, "Array element $_ handled by registered type";
+    }
 
     ($result) = PGObject->call_procedure(
         funcname   => 'test_int',
@@ -82,11 +83,11 @@ SKIP: {
    
     is($result->{test_int}, 1000, 
           'Correct handling of override, named registry with no override');
+    $dbh->disconnect if $dbh;
+    $dbh1->do('DROP DATABASE pgobject_test_db') if $dbh1;
+    $dbh1->disconnect if $dbh1;
 }
 
-$dbh->disconnect if $dbh;
-$dbh1->do('DROP DATABASE pgobject_test_db') if $dbh1;
-$dbh1->disconnect if $dbh1;
 
 package test1;
 

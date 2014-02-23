@@ -5,6 +5,11 @@ Revision history for PGObject
 	not parse the array from text format and only handles an array passed 
 	to it.  This paves the way for array-handling composite types, however.
 
+	2.  DB_TESTING environment variable now used to control database tests,
+	consistent with other PGObject modules.
+
+	3.  MANIFEST.SKIP amended to support Mercurial
+
 1.3	2013-11-14
 	1. Added get_registered() for composite type decoding
 
