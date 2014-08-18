@@ -8,14 +8,15 @@ package PGObject;
 use strict;
 use warnings;
 use Carp;
+use Memoize;
 
 =head1 VERSION
 
-Version 1.4
+Version 1.402.0
 
 =cut
 
-our $VERSION = '1.4';
+our $VERSION = '1.402.0';
 
 my %typeregistry = (
     default => {},
@@ -23,6 +24,13 @@ my %typeregistry = (
 
 =head1 SYNPOSIS
 
+To use without caching:
+
+  use PGObject;
+
+To use with caching:
+
+  use PGObject ':cache'; 
 
 To get basic info from a function
 
@@ -63,6 +71,13 @@ To do the same with a running total
       running_funcs => [{agg => 'sum(amount)', alias => 'running_total'}],
   );
 
+=cut
+
+sub import {
+    my @directives = @_;
+    memoize 'function_info' if grep { $_ eq ':cache' } @directives;
+}
+
 =head1 DESCRIPTION
 
 PGObject contains the base routines for object management using discoverable
@@ -82,6 +97,18 @@ idea that wrapper classes would be written to implement this.
 
 =head1 FUNCTIONS
 
+=head2 clear_info_cache
+
+This function clears the info cache if this was loaded with caching enabled.
+
+The cache is also automatically cleared when a function that was run could not
+be found (this could be caused by updating the db).
+
+=cut
+
+sub clear_info_cache {
+    eval { Memoize::flush_cache('function_info') };
+}
 
 
 =head2 function_info(%args)
@@ -343,6 +370,8 @@ sub call_procedure {
     }
 
     $sth->execute();
+    
+    clear_info_cache() if $dbh->state eq '42883'; # (No Such Function)
 
     my @rows = ();
     while (my $row = $sth->fetchrow_hashref('NAME_lc')){
@@ -371,8 +400,9 @@ This module should generally only be used by type handlers or by this module.
 =cut
 
 sub process_type {
-    my ($val, $type, $registry) = @_;
+    my ($val, $type, $registry, $dbh) = @_;
 
+    $registry = $typeregistry{$registry} unless ref $registry;
     # Array handling as we'd get this usually from DBD::Pg or equivalent
     if (ref $val eq ref []){
        # strangely, DBD::Pg returns, as of 2.x, the types of array types 

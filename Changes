@@ -1,5 +1,9 @@
 Revision history for PGObject
 
+1.4.1	2014-03-03
+	Fixed type instantiation bug when calling from externally with a 
+	named registry
+
 1.4	2014-02-24
 	1. Added support for arrays and registered types.   Note that this does
 	not parse the array from text format and only handles an array passed 
