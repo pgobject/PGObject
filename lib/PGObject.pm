@@ -16,7 +16,7 @@ Version 1.402.0
 
 =cut
 
-our $VERSION = '1.402.0';
+our $VERSION = '1.402.1';
 
 my %typeregistry = (
     default => {},
@@ -586,6 +586,22 @@ modules.
 We do not supply type information, If your top-level module needs this, please
 check out https://code.google.com/p/typeutils/ which could then be used via our
 function mapping APIs here.
+
+=head2 Safely Handling Memoization of Catalog Lookups
+
+It is important to remember, when writing PGObject top half frameworks that the
+catalog lookups may be memoized and may come back as a data structure.  This
+means that changes to the structures returned from get_function_info() in this
+module and similar functions in other catalog-bound modules may not be safe to
+modify in arbitrary ways.  Therefore we recommend that the return values from
+catalog-lookup functions are treated as immutable.
+
+Normalizing output is safe provided there are no conflicts between naming 
+conventions.  This is usually true since different naming conventions would 
+interfere withmapping.  However, there could be cases where it is not true, for
+example, where two different mapping modules agree on a subset of normalization
+conventions but differ on some details.  The two might safely handle the same
+conventions but normalize differently resulting in conflicts of both were used.
 
 =head1 A BRIEF GUIDE TO THE NAMESPACE LAYOUT
 
