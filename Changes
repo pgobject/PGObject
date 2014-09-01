@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.401.2 2014-09-01
+        Code cleanup
+
 1.401.1 2014-08-21
         Better documentation of memoization uses and misuses.
 
