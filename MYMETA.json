@@ -25,11 +25,6 @@
             "ExtUtils::MakeMaker" : "0"
          }
       },
-      "configure" : {
-         "requires" : {
-            "ExtUtils::MakeMaker" : "0"
-         }
-      },
       "runtime" : {
          "requires" : {
             "DBD::Pg" : "2",
@@ -40,5 +35,12 @@
       }
    },
    "release_status" : "stable",
-   "version" : "v1.402.0"
+   "resources" : {
+      "repository" : {
+         "type" : "git",
+         "url" : "https://github.com/ledgersmb/PGObject.git",
+         "web" : "https://github.com/ledgersmb/PGObject"
+      }
+   },
+   "version" : "v1.402.2"
 }

@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.0
+Version 1.402.2
 
 =cut
 
-our $VERSION = '1.402.1';
+our $VERSION = '1.402.2';
 
 my %typeregistry = (
     default => {},
@@ -285,32 +285,20 @@ sub call_procedure {
 
     my $wf_string = '';
 
-    if ($args{running_funcs}){
-        for (@{$args{running_funcs}}){
-           $wf_string .= ', '. $_->{agg}. ' OVER (ROWS UNBOUNDED PRECEDING) AS '
-                         . $_->{alias};
-        }
-    }
-    my @qargs = ();
-    my $argstr = '';
-    for my $in_arg (@{$args{args}}){
-        my $arg = $in_arg;
-        if (eval {$in_arg->can('pgobject_to_db')}) {
-            $arg = $in_arg->{pgobject_to_db};
-        } 
-            
-        if ($argstr){
-           $argstr .= ', ?';
-        } else {
-           $argstr .= '?';
-        }
-        if (ref $arg eq ref {}){
-           $argstr .= "::".$dbh->quote_identifier($arg->{cast}) if $arg->{cast};
-           push @qargs, $arg->{value};
-        }  else {
-           push @qargs, $arg;
-        }
-    }
+    $wf_string = join ', ', map { 
+                         $_->{agg} 
+                         . ' OVER (ROWS UNBOUNDED PRECEDING) AS '
+                         . $_->{alias}
+                 } @{$args{running_funcs}} if $args{running_funcs};
+    $wf_string = ', ' . $wf_string if $wf_string;
+
+    my @qargs = map {ref $_ ? $_->{value} : $_ }  @{$args{args}};
+
+    my $argstr = join ', ', map { 
+                  $_ = $_->pgobject_to_db if eval {$_->can('pgobject_to_db') };
+                  (ref $_ and $_->{cast}) ? "?::$_->{cast}" : '?';
+                  } @{$args{args}};  
+
     my $order = '';
     if ($args{orderby}){
         for my $ord (@{$args{orderby}}){

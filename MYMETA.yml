@@ -4,8 +4,6 @@ author:
   - 'Chris Travers <chris.travers@gmail.com>'
 build_requires:
   ExtUtils::MakeMaker: 0
-configure_requires:
-  ExtUtils::MakeMaker: 0
 dynamic_config: 0
 generated_by: 'ExtUtils::MakeMaker version 6.72, CPAN::Meta::Converter version 2.132140'
 license: bsd
@@ -22,4 +20,6 @@ requires:
   Memoize: 0
   Test::Exception: 0
   Test::More: 0
-version: v1.402.0
+resources:
+  repository: https://github.com/ledgersmb/PGObject.git
+version: v1.402.2
