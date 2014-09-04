@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.2
+Version 1.402.3
 
 =cut
 
-our $VERSION = '1.402.2';
+our $VERSION = '1.402.3';
 
 my %typeregistry = (
     default => {},
@@ -295,6 +295,7 @@ sub call_procedure {
     my @qargs = map {ref $_ ? $_->{value} : $_ }  @{$args{args}};
 
     my $argstr = join ', ', map { 
+                  $_ = $_->to_db if eval {$_->can('to_db') };
                   $_ = $_->pgobject_to_db if eval {$_->can('pgobject_to_db') };
                   (ref $_ and $_->{cast}) ? "?::$_->{cast}" : '?';
                   } @{$args{args}};  
@@ -504,9 +505,9 @@ sub get_type_registry {
 
 One of the powerful features of PGObject is the ability to declare methods in
 types which can be dynamically detected and used to serialize data for query
-purposes. Objects which contain a pgobject_to_db(), that method will be called
-and the return value used in place of the object.  This can allow arbitrary
-types to serialize themselves in arbitrary ways.
+purposes. Objects which contain a pgobject_to_db() or a to_db() method, that 
+method will be called and the return value used in place of the object.  This 
+can allow arbitrary types to serialize themselves in arbitrary ways.
 
 For example a date object could be set up with such a method which would export
 a string in yyyy-mm-dd format.  An object could look up its own definition and

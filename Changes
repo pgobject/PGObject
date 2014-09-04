@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.401.3 2014-09-04
+        Supporting both the old pgobject_to_db and the new to_db methods.
+
 1.401.2 2014-09-01
         Code cleanup
 
