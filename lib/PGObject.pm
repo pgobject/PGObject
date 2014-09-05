@@ -302,24 +302,13 @@ sub call_procedure {
 
     my $order = '';
     if ($args{orderby}){
-        for my $ord (@{$args{orderby}}){
-            my @words = split / /, $ord;
-            my $direction = pop @words;
-            my $safe_ord;
-
-            if (uc($direction) =~ /^(ASC|DESC)$/){
-              $ord =~ s/\s+$direction$//;
-              $safe_ord = $dbh->quote_identifier($ord) . " $direction"; 
-            } else {
-               $safe_ord = $dbh->quote_identifier($ord);
-            }
- 
-            if ($order){
-                $order .= ', ' . $safe_ord;
-            } else {
-                $order =  $safe_ord;
-            }
-        }
+        $order = join(', ', map {
+                                  $_ =~ s/\s+(ASC|DESC)$//i;
+                                  my $dir = $1;
+                                  defined $dir ? $dbh->quote_identifier($_)
+                                                  . " $dir"
+                                               : $dbh->quote_identifier($_);
+                                } @{$args{orderby}}); 
     }
     my $query = qq|
            SELECT * $wf_string 
