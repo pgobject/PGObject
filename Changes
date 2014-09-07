@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.401.4 2014-09-05
+        Fixed to_db and pgobject_to_db serialization functions (+added tests)
+
 1.401.3 2014-09-04
         Supporting both the old pgobject_to_db and the new to_db methods.
         More code cleanup
