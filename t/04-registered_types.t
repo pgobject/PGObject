@@ -15,7 +15,7 @@ is(PGObject->register_type(
 
 
 SKIP: {
-    skip 'No database connection', 7 unless $ENV{DB_TESTING};
+    skip 'No database connection', 9 unless $ENV{DB_TESTING};
 
     # Initial db setup
 

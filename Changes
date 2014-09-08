@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.402.5 2014-09-07
+        Fixed test numbering that caused build failures
+
 1.402.4 2014-09-05
         Fixed to_db and pgobject_to_db serialization functions (+added tests)
 
