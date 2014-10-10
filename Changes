@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.402.6 2014-10-09
+	Better exception handling
+
 1.402.5 2014-09-07
         Fixed test numbering that caused build failures
 

@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.5
+Version 1.402.6
 
 =cut
 
-our $VERSION = '1.402.5';
+our $VERSION = '1.402.6';
 
 my %typeregistry = (
     default => {},
@@ -205,6 +205,7 @@ sub function_info {
     my $sth = $dbh->prepare($query) || die $!;
     $sth->execute(@queryargs);
     my $ref = $sth->fetchrow_hashref('NAME_lc');
+    croak "transaction already aborted" if  $dbh->state eq '25P02';
     croak "No such function" if !$ref;
     croak 'Ambiguous discovery criteria' if $sth->fetchrow_hashref('NAME_lc');
 
@@ -282,6 +283,8 @@ sub call_procedure {
 
     my $registry = $typeregistry{$args{registry}};
     my $dbh = $args{dbh};
+    croak "No database handle provided" unless $dbh;
+    croak "dbh not a database handle" unless eval {$dbh->isa('DBI::db')};
 
     my $wf_string = '';
 

@@ -22,4 +22,4 @@ requires:
   Test::More: 0
 resources:
   repository: https://github.com/ledgersmb/PGObject.git
-version: v1.402.4
+version: v1.402.5
