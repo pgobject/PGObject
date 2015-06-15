@@ -353,7 +353,7 @@ sub call_procedure {
         ++$place;
     }
 
-    $sth->execute();
+    $sth->execute() || die $dbh->errstr . ": " . $query;
     
     clear_info_cache() if $dbh->state eq '42883'; # (No Such Function)
 
