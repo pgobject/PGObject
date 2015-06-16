@@ -203,7 +203,7 @@ sub function_info {
     }
 
     my $sth = $dbh->prepare($query) || die $!;
-    $sth->execute(@queryargs);
+    $sth->execute(@queryargs) || die $dbh->errstr . ": " . $query;
     my $ref = $sth->fetchrow_hashref('NAME_lc');
     croak "transaction already aborted" if  $dbh->state eq '25P02';
     croak "No such function" if !$ref;
@@ -353,7 +353,7 @@ sub call_procedure {
         ++$place;
     }
 
-    $sth->execute();
+    $sth->execute() || die $dbh->errstr . ": " . $query;
     
     clear_info_cache() if $dbh->state eq '42883'; # (No Such Function)
 
