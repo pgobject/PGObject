@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.6
+Version 1.402.7
 
 =cut
 
-our $VERSION = '1.402.6';
+our $VERSION = '1.402.7';
 
 my %typeregistry = (
     default => {},
@@ -385,6 +385,7 @@ This module should generally only be used by type handlers or by this module.
 
 sub process_type {
     my ($val, $type, $registry, $dbh) = @_;
+    return unless defined $val;
 
     $registry = $typeregistry{$registry} unless ref $registry;
     # Array handling as we'd get this usually from DBD::Pg or equivalent
