@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.402.7 2015-09-09
+	local $@ to hide eval failures from bleeding up
+
 1.402.6 2014-10-09
 	Better exception handling
 

@@ -8,7 +8,7 @@ my $dbh1 = DBI->connect('dbi:Pg:', 'postgres') ;
 
 plan skip_all => 'Needs superuser connection for this test script' unless $dbh1;
 
-plan tests => 34;
+plan tests => 35;
 
 
 $dbh1->do('CREATE DATABASE pgobject_test_db');
@@ -75,6 +75,7 @@ is($function_info3->{args}->[1]->{name}, 'in_test2',
 is($function_info3->{args}->[2]->{name}, 'in_test3', 
   'specified schema and arg type, arg1 name');
 
+
 is($function_info->{args}->[0]->{type}, 'integer', 
   'default schema, arg1 type');
 is($function_info->{args}->[1]->{type}, 'text', 
@@ -135,6 +136,7 @@ ok($result3->{pg_object_test}, 'Correct value returned for proc result3');
 ok($result4->{pg_object_test}, 'Correct value returned for proc result4');
 is($result3->{lines}, 1, 'Correct running agg returned for proc result3');
 
+ok(!$@, 'No eval failures bleeding up') or diag ("eval error bled up: $@");
 $dbh->disconnect;
 $dbh1->do('DROP DATABASE pgobject_test_db');
 $dbh1->disconnect;

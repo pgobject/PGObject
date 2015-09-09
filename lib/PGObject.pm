@@ -107,6 +107,7 @@ be found (this could be caused by updating the db).
 =cut
 
 sub clear_info_cache {
+    local $@;
     eval { Memoize::flush_cache('function_info') };
 }
 
@@ -276,6 +277,7 @@ the framework level for this parameter.
 sub call_procedure {
     my ($self) = shift @_;
     my %args = @_;
+    local $@;
     $args{funcschema} ||= 'public';
     $args{funcprefix} ||= '';
     $args{funcname} = $args{funcprefix}.$args{funcname};
