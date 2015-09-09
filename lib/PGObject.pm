@@ -107,6 +107,7 @@ be found (this could be caused by updating the db).
 =cut
 
 sub clear_info_cache {
+    local ($@);
     eval { Memoize::flush_cache('function_info') };
 }
 
@@ -297,6 +298,7 @@ sub call_procedure {
 
     my @qargs = map { 
                       my $arg = $_;
+                      local ($@);
                       $arg = $arg->to_db if eval {$arg->can('to_db')};
                       $arg = $arg->pgobject_to_db if eval {$arg->can('pgobject_to_db')};
                       ref $arg ? $arg->{value} : $arg 
@@ -341,6 +343,7 @@ sub call_procedure {
             # This is used to support arrays of db-aware types.  Long-run 
             # I think we should merge bytea support into this framework. --CT
             if (ref($carg) eq 'ARRAY'){
+               local ($@);
                if (eval{$carg->[0]->can('to_db')}){
                   for my $ref(@$carg){
                        $ref = $ref->to_db;
