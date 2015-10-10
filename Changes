@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.402.8 2015-10-10
+	Fixing array ref handling, and tightening up ref handling
+
 1.402.7 2015-09-09
 	local $@ to hide eval failures from bleeding up
 

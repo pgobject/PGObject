@@ -301,11 +301,11 @@ sub call_procedure {
                       my $arg = $_;
                       $arg = $arg->to_db if eval {$arg->can('to_db')};
                       $arg = $arg->pgobject_to_db if eval {$arg->can('pgobject_to_db')};
-                      ref $arg ? $arg->{value} : $arg 
+                      ref ($arg =~ /HASH/) ? $arg->{value} : $arg 
                 }  @{$args{args}};
 
     my $argstr = join ', ', map { 
-                  (ref $_ and $_->{cast}) ? "?::$_->{cast}" : '?';
+                  (ref $_ and eval { $_->{cast} } ) ? "?::$_->{cast}" : '?';
                   } @{$args{args}};  
 
     my $order = '';
@@ -335,14 +335,14 @@ sub call_procedure {
     # the binding process.  --Chris T
 
     foreach my $carg (@qargs){
-        if (ref($carg) eq ref {}){
+        if (ref($carg) =~ /HASH/){
             $sth->bind_param($place, $carg->{value},
                        { pg_type => $carg->{type} });
         } else {
 
             # This is used to support arrays of db-aware types.  Long-run 
             # I think we should merge bytea support into this framework. --CT
-            if (ref($carg) eq 'ARRAY'){
+            if (ref($carg) =~ /ARRAY/){
                if (eval{$carg->[0]->can('to_db')}){
                   for my $ref(@$carg){
                        $ref = $ref->to_db;
@@ -391,7 +391,7 @@ sub process_type {
 
     $registry = $typeregistry{$registry} unless ref $registry;
     # Array handling as we'd get this usually from DBD::Pg or equivalent
-    if (ref $val eq ref []){
+    if (ref $val =~ /ARRAY/){
        # strangely, DBD::Pg returns, as of 2.x, the types of array types 
        # as prefixed with an underscore.  So we have to remove this. --CT
        $type =~ s/^\_//;
@@ -410,6 +410,7 @@ sub process_type {
 
 =head2 new_registry($registry_name)
 
+use LedgerSMB::DBObject::Reconciliation;
 Creates a new registry if it does not exist.  This is useful when segments of
 an application must override existing type mappings.
 
