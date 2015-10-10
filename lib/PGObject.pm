@@ -410,7 +410,6 @@ sub process_type {
 
 =head2 new_registry($registry_name)
 
-use LedgerSMB::DBObject::Reconciliation;
 Creates a new registry if it does not exist.  This is useful when segments of
 an application must override existing type mappings.
 
