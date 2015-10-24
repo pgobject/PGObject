@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.7
+Version 1.402.8
 
 =cut
 
-our $VERSION = '1.402.7';
+our $VERSION = '1.402.8';
 
 my %typeregistry = (
     default => {},
@@ -301,7 +301,7 @@ sub call_procedure {
                       my $arg = $_;
                       $arg = $arg->to_db if eval {$arg->can('to_db')};
                       $arg = $arg->pgobject_to_db if eval {$arg->can('pgobject_to_db')};
-                      ref ($arg =~ /HASH/) ? $arg->{value} : $arg 
+                      (ref $arg and ref $arg =~ /HASH/) ? $arg->{value} : $arg 
                 }  @{$args{args}};
 
     my $argstr = join ', ', map { 
