@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.7
+Version 1.402.8
 
 =cut
 
-our $VERSION = '1.402.7';
+our $VERSION = '1.402.8';
 
 my %typeregistry = (
     default => {},
@@ -107,7 +107,7 @@ be found (this could be caused by updating the db).
 =cut
 
 sub clear_info_cache {
-    local $@;
+    local ($@);
     eval { Memoize::flush_cache('function_info') };
 }
 
@@ -299,9 +299,11 @@ sub call_procedure {
 
     my @qargs = map { 
                       my $arg = $_;
+                      local ($@);
                       $arg = $arg->to_db if eval {$arg->can('to_db')};
                       $arg = $arg->pgobject_to_db if eval {$arg->can('pgobject_to_db')};
-                      ref ($arg =~ /HASH/) ? $arg->{value} : $arg 
+                      no warnings 'uninitialized';
+                      ref($arg) =~ /HASH/ ? $arg->{value} : $arg;
                 }  @{$args{args}};
 
     my $argstr = join ', ', map { 
@@ -343,6 +345,7 @@ sub call_procedure {
             # This is used to support arrays of db-aware types.  Long-run 
             # I think we should merge bytea support into this framework. --CT
             if (ref($carg) =~ /ARRAY/){
+               local ($@);
                if (eval{$carg->[0]->can('to_db')}){
                   for my $ref(@$carg){
                        $ref = $ref->to_db;
@@ -391,7 +394,7 @@ sub process_type {
 
     $registry = $typeregistry{$registry} unless ref $registry;
     # Array handling as we'd get this usually from DBD::Pg or equivalent
-    if (ref $val =~ /ARRAY/){
+    if (ref $val and ref($val) =~ /ARRAY/){
        # strangely, DBD::Pg returns, as of 2.x, the types of array types 
        # as prefixed with an underscore.  So we have to remove this. --CT
        $type =~ s/^\_//;

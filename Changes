@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+1.402.9 TBD
+        Fixing warning in map
+
 1.402.8 2015-10-10
 	Fixing array ref handling, and tightening up ref handling
 
