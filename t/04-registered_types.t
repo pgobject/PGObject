@@ -12,8 +12,6 @@ is(PGObject->register_type(
         pg_type => 'int4', perl_class => 'test2', registry => 'test1'), 1,
        "Basic type registration");
 
-
-
 SKIP: {
     skip 'No database connection', 9 unless $ENV{DB_TESTING};
 

@@ -302,7 +302,8 @@ sub call_procedure {
                       local ($@);
                       $arg = $arg->to_db if eval {$arg->can('to_db')};
                       $arg = $arg->pgobject_to_db if eval {$arg->can('pgobject_to_db')};
-                      (ref $arg and ref $arg =~ /HASH/) ? $arg->{value} : $arg 
+                      no warnings 'uninitialized';
+                      ref($arg) =~ /HASH/ ? $arg->{value} : $arg;
                 }  @{$args{args}};
 
     my $argstr = join ', ', map { 
@@ -393,7 +394,7 @@ sub process_type {
 
     $registry = $typeregistry{$registry} unless ref $registry;
     # Array handling as we'd get this usually from DBD::Pg or equivalent
-    if (ref $val =~ /ARRAY/){
+    if (ref $val and ref($val) =~ /ARRAY/){
        # strangely, DBD::Pg returns, as of 2.x, the types of array types 
        # as prefixed with an underscore.  So we have to remove this. --CT
        $type =~ s/^\_//;
