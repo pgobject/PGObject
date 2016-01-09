@@ -343,12 +343,8 @@ sub call_procedure {
 
             # This is used to support arrays of db-aware types.  Long-run 
             # I think we should merge bytea support into this framework. --CT
-<<<<<<< local
             if (ref($carg) =~ /ARRAY/){
-=======
-            if (ref($carg) eq 'ARRAY'){
                local ($@);
->>>>>>> other
                if (eval{$carg->[0]->can('to_db')}){
                   for my $ref(@$carg){
                        $ref = $ref->to_db;
