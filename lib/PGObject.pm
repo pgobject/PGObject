@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.8
+Version 1.402.9
 
 =cut
 
-our $VERSION = '1.402.8';
+our $VERSION = '1.402.9';
 
 my %typeregistry = (
     default => {},
