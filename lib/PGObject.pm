@@ -660,7 +660,7 @@ L<http://search.cpan.org/dist/PGObject/>
 This code has been loosely based on code written for the LedgerSMB open source 
 accounting and ERP project.  While that software uses the GNU GPL v2 or later,
 this is my own reimplementation, based on my original contributions to that 
-project alone, and it differs in signficant ways.   This being said, without
+project alone, and it differs in significant ways.   This being said, without
 LedgerSMB, this module wouldn't exist, and without the lessons learned there, 
 and the great people who have helped make this possible, this framework would 
 not be half of what it is today.
