@@ -12,6 +12,7 @@
 \bMANIFEST\.SKIP
 \bMakefile$
 \bblib/
+\bbuild_dir/            # coverage testing on Travis CI generates this
 \bMakeMaker-\d
 \bpm_to_blib\.ts$
 \bpm_to_blib$
