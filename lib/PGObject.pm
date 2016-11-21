@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.402.9
+Version 1.403.1
 
 =cut
 
-our $VERSION = '1.402.9';
+our $VERSION = '1.403.1';
 
 my %typeregistry = (
     default => {},
@@ -302,8 +302,7 @@ sub call_procedure {
                       local ($@);
                       $arg = $arg->to_db if eval {$arg->can('to_db')};
                       $arg = $arg->pgobject_to_db if eval {$arg->can('pgobject_to_db')};
-                      no warnings 'uninitialized';
-                      ref($arg) =~ /HASH/ ? $arg->{value} : $arg;
+                      $arg;
                 }  @{$args{args}};
 
     my $argstr = join ', ', map { 
@@ -313,8 +312,10 @@ sub call_procedure {
     my $order = '';
     if ($args{orderby}){
         $order = join(', ', map {
-                                  $_ =~ s/\s+(ASC|DESC)$//i;
-                                  my $dir = $1;
+                                  my $dir = undef;
+                                  if ( s/\A\s+(ASC|DESC)\s*\z//i ) {
+                                      $dir = $1;
+                                  }
                                   defined $dir ? $dbh->quote_identifier($_)
                                                   . " $dir"
                                                : $dbh->quote_identifier($_);
@@ -332,9 +333,6 @@ sub call_procedure {
     my $sth = $dbh->prepare($query) || die $!;
 
     my $place = 1;
-
-    # This is needed to support byteas, which rquire special escaping during
-    # the binding process.  --Chris T
 
     foreach my $carg (@qargs){
         if (ref($carg) =~ /HASH/){
