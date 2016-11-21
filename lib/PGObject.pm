@@ -313,8 +313,8 @@ sub call_procedure {
     if ($args{orderby}){
         $order = join(', ', map {
                                   my $dir = undef;
-                                  if ( s/\s+(ASC|DESC)$//i ) {
-                                      my $dir = $1;
+                                  if ( s/\s+(ASC|DESC)//i ) {
+                                      $dir = $1;
                                   }
                                   defined $dir ? $dbh->quote_identifier($_)
                                                   . " $dir"
