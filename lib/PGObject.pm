@@ -12,11 +12,11 @@ use Memoize;
 
 =head1 VERSION
 
-Version 1.403.1
+Version 1.403.2
 
 =cut
 
-our $VERSION = '1.403.1';
+our $VERSION = '1.403.2';
 
 my %typeregistry = (
     default => {},
@@ -313,7 +313,7 @@ sub call_procedure {
     if ($args{orderby}){
         $order = join(', ', map {
                                   my $dir = undef;
-                                  if ( s/\A\s+(ASC|DESC)\s*\z//i ) {
+                                  if ( s/\s+(ASC|DESC)\s*$//i ) {
                                       $dir = $1;
                                   }
                                   defined $dir ? $dbh->quote_identifier($_)
