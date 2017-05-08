@@ -146,10 +146,11 @@ sub deserialize {
     carp 'No registry specified, using default' unless exists $args{registry};
     croak "Must specify dbtype arg" unless $args{dbtype};
     croak "Must specify dbstring arg" unless $args{dbstring};
-
+    %args = (%defaults, %args);
     no strict 'refs';
-    return $args{dbstring} unless $registry{$args{dbtype}};
-    return &{*{"$registry{$args{dbtype}}::from_db"}}($args{dbstring}, $args{dbtype});
+    return $args{dbstring} unless $registry{$args{registry}}->{$args{dbtype}};
+    
+    return "$registry{$args{registry}}->{$args{dbtype}}"->can('from_db')->($args{dbstring}, $args{dbtype});
 }
 
 =head1 INSPECTING A REGISTRY

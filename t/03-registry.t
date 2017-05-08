@@ -1,6 +1,14 @@
+package Serializer;
+
+sub from_db {
+    my ($dbstring, $dbtype) = @_;
+    return 4 unless $dbtype;
+    return $dbtype;
+}
+
 package main;
 
-use Test::More tests => 5;
+use Test::More tests => 9;
 use PGObject::Type::Registry;
 use Test::Exception;
 
@@ -27,3 +35,15 @@ throws_ok{PGObject::Type::Registry->register_type(
  qr/Registry.*exist/, 
 'Correction exception thrown, reregistering in nonexistent registry.';
 
+lives_ok { PGObject::Type::Registry->new_registry('foo') }, 'Created registry';
+
+is (PGObject::Type::Registry->deserialize(
+        registry => 'foo', 'dbtype' => 'test', 'dbstring' => '10000'), 10000,
+        'Deserialization of unregisterd type returns input straight');
+lives_ok { PGObject::Type::Registry->register_type(
+        registry => 'foo', dbtype => 'test', apptype => 'Serializer') },
+        'registering serializer';
+
+is (PGObject::Type::Registry->deserialize(
+        registry => 'foo', 'dbtype' => 'test', 'dbstring' => '10000'), 'test',
+        'Deserialization of unregisterd type returns from_db');
