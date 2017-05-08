@@ -108,6 +108,7 @@ SKIP: {
 package test1;
 
 sub from_db {
+    my ($string, $type) = @_;
     return 4;
 }
 

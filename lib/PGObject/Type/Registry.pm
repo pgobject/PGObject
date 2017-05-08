@@ -147,8 +147,17 @@ sub deserialize {
     croak "Must specify dbtype arg" unless $args{dbtype};
     croak "Must specify dbstring arg" unless $args{dbstring};
     %args = (%defaults, %args);
+    my $arraytype = 0;
+    if ($args{dbtype} =~ /^_/){
+       $args{dbtype} =~ s/^_//;
+       $arraytype = 1;
+    }
     no strict 'refs';
     return $args{dbstring} unless $registry{$args{registry}}->{$args{dbtype}};
+
+    return [ map { $self->deserialize(%args, dbstring => $_) } 
+             @{$args{dbstring}} 
+    ] if $arraytype;
     
     return "$registry{$args{registry}}->{$args{dbtype}}"->can('from_db')->($args{dbstring}, $args{dbtype});
 }
