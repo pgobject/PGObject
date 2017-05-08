@@ -8,7 +8,7 @@ sub from_db {
 
 package main;
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use PGObject::Type::Registry;
 use Test::Exception;
 
@@ -47,3 +47,7 @@ lives_ok { PGObject::Type::Registry->register_type(
 is (PGObject::Type::Registry->deserialize(
         registry => 'foo', 'dbtype' => 'test', 'dbstring' => '10000'), 'test',
         'Deserialization of unregisterd type returns from_db');
+
+is_deeply([sort {$a cmp $b} qw(foo default)], [sort {$a cmp $b} PGObject::Type::Registry->list()], 'Registry as expected');
+
+is(PGObject::Type::Registry->inspect('foo')->{test}, 'Serializer', "Correct inspection behavior");
