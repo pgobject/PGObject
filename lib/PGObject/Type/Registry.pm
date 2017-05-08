@@ -142,7 +142,7 @@ This function returns the output of the from_db method.
 
 sub deserialize {
     my ($self, %args) = @_;
-    my %defaults = { registry => 'default' };
+    my %defaults = ( registry => 'default' );
     carp 'No registry specified, using default' unless exists $args{registry};
     croak "Must specify dbtype arg" unless $args{dbtype};
     croak "Must specify dbstring arg" unless $args{dbstring};
