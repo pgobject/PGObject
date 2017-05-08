@@ -476,6 +476,10 @@ Any type MAY present an $object->to_db() interface, requiring no arguments, and 
 
 =head2 UNDERSTANDING THE REGISTRY SYSTEM
 
+Note that 2.0 moves the registry to a service module which handles both
+registry and deserialization of database types.  This is intended to be both
+cleaner and more flexible than the embedded system in 1.x.
+
 The registry system allows Perl classes to "claim" PostgreSQL types within a 
 certain domain.  For example, if I want to ensure that all numeric types are
 turned into Math::BigFloat objects, I can build a wrapper class with appropriate
@@ -492,6 +496,21 @@ registries.  Each registry is fully global, but application components can
 specify non-standard registries when calling procedures, and PGObject will use
 only those components registered on the non-standard registry when checking rows
 before output.
+
+=head3 Backwards Incompatibilities from 1.x
+
+Deserialization occurs in a context which specifies a registry.  In 1.x there
+were no concerns about default mappings but now this triggers a warning.  The
+most basic and frequently used portions of this have been kept but return values
+for registering types has changed.  We no longer provide a return variable but
+throw an exception if the type cannot be safely registered.
+
+This follows a philosophy of throwing exceptions when guarantees cannot be met.
+
+We now throw warnings when the default registry is used.
+
+Longer-run, deserializers should use the PGObject::Type::Registry interface
+directly.
 
 =head1 WRITING TOP-HALF OBJECT FRAMEWORKS FOR PGOBJECT
 
