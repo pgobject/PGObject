@@ -640,6 +640,7 @@ not be half of what it is today.
 =head1 COPYRIGHT
 
 COPYRIGHT (C) 2013-2014 Chris Travers
+COPYRIGHT (C) 2014-2017 The LedgerSMB Core Team
 
 Redistribution and use in source and compiled forms with or without 
 modification, are permitted provided that the following conditions are met:
