@@ -1,11 +1,12 @@
 use Test::More tests => 14;
+use Test::Exception;
 use DBI;
 use PGObject;
 
 
-is(PGObject->new_registry('test1'), 1, 'New registry 1 created');
-is(PGObject->new_registry('blank'), 1, 'New registry blank created');
-is(PGObject->new_registry('test2'), 1, 'New registry 2 created');
+lives_ok {PGObject->new_registry('test1') } 'New registry 1 created';
+lives_ok {PGObject->new_registry('blank') } 'New registry blank created';
+lives_ok {PGObject->new_registry('test2') } 'New registry 2 created';
 is(PGObject->register_type(pg_type => 'int4', perl_class => 'test1'), 1,
        "Basic type registration");
 is(PGObject->register_type(
