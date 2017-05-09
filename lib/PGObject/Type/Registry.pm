@@ -95,12 +95,17 @@ sub register_type {
     delete $args{registry} unless defined $args{registry};
     %args = (%defaults, %args);
     croak 'Registry does not exist yet' unless exists $registry{$args{registry}};
-    croak "apptype not yet loaded ($args{apptype})" unless exists $::{"$args{apptype}::"};
     croak 'Type registered with different target' 
         if exists $registry{$args{registry}}->{$args{dbtype}} and
            $registry{$args{registry}}->{$args{dbtype}} ne $args{apptype};
+    $args{apptype} =~ /^(.*)::(\w*)$/;
+    my ($parent, $final) = ($1, $2);
+    $parent ||= '';
+    $final ||= $args{apptype};
     { 
        no strict 'refs';
+    $parent = "${parent}::" if $parent;
+    croak "apptype not yet loaded ($args{apptype})" unless exists ${"::${parent}"}{"${final}::"};
     croak 'apptype does not have from_db function'
          unless *{"$args{apptype}::from_db"};
     }
