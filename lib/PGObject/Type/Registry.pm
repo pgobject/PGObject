@@ -150,7 +150,7 @@ sub deserialize {
     my %defaults = ( registry => 'default' );
     carp 'No registry specified, using default' unless exists $args{registry};
     croak "Must specify dbtype arg" unless $args{dbtype};
-    croak "Must specify dbstring arg" unless $args{dbstring};
+    croak "Must specify dbstring arg" unless exists $args{dbstring};
     %args = (%defaults, %args);
     my $arraytype = 0;
     if ($args{dbtype} =~ /^_/){
@@ -164,7 +164,7 @@ sub deserialize {
              @{$args{dbstring}} 
     ] if $arraytype;
     
-    return "$registry{$args{registry}}->{$args{dbtype}}"->can('from_db')->($args{dbstring}, $args{dbtype});
+    return "$registry{$args{registry}}->{$args{dbtype}}"->can('from_db')->($registry{$args{registry}}->{$args{dbtype}}, $args{dbstring}, $args{dbtype});
 }
 
 =head1 INSPECTING A REGISTRY
