@@ -40,7 +40,7 @@
 ^work
 ^tmp
 \bTAGS$
-^MYMETA.yml$
+^MYMETA.(yml|json)$
 
 \bSu-[\d\.\_]+
 
