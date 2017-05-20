@@ -73,6 +73,7 @@ To do the same with a running total
 sub import {
     my @directives = @_;
     memoize 'function_info' if grep { $_ eq ':cache' } @directives;
+    PGObject::Type::Registry->new_registry($_) for grep { $_ !~ /^\:/; } @directives; 
 }
 
 =head1 DESCRIPTION
@@ -167,14 +168,13 @@ The number of arguments
 =cut
 
 sub function_info {
-    my ($self) = shift @_;
-    my %args = @_;
+    my ($self, %args) = @_;
     $args{funcschema} ||= 'public';
     $args{funcprefix} ||= '';
     $args{funcname} = $args{funcprefix}.$args{funcname};
     $args{argschema} ||= 'public';
 
-    my $dbh = $args{dbh};
+    my $dbh = $args{dbh} || croak 'No dbh provided';
 
     
 
