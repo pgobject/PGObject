@@ -1,12 +1,14 @@
-use Test::More tests => 16;
+use Test::More tests => 18;
 use Test::Exception;
 use DBI;
-use PGObject;
+use PGObject 'test1', 'test2';
 
 
-lives_ok {PGObject->new_registry('test1') } 'New registry 1 created';
+ok(PGObject::Type::Registry->inspect('test1'), 'test1 registry exists');
+ok(PGObject::Type::Registry->inspect('test2'), 'test2 registry exists');
+lives_ok {PGObject->new_registry('test1') } 'New registry 1 recreation lives';
 lives_ok {PGObject->new_registry('blank') } 'New registry blank created';
-lives_ok {PGObject->new_registry('test2') } 'New registry 2 created';
+lives_ok {PGObject->new_registry('test2') } 'New registry 2 recreation lives';
 is(PGObject->register_type(pg_type => 'int4', perl_class => 'test1'), 1,
        "Basic type registration");
 is(PGObject->register_type(
