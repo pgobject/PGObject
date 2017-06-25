@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 PGObject - A toolkit integrating intelligent PostgreSQL dbs into Perl objects
@@ -74,7 +75,8 @@ To do the same with a running total
 sub import {
     my @directives = @_;
     memoize 'function_info' if grep { $_ eq ':cache' } @directives;
-    PGObject::Type::Registry->new_registry($_) for grep { $_ !~ /^\:/; } @directives;
+    PGObject::Type::Registry->new_registry($_)
+        for grep { $_ !~ /^\:/; } @directives;
 }
 
 =head1 DESCRIPTION
@@ -109,7 +111,6 @@ sub clear_info_cache {
     local ($@);
     eval { Memoize::flush_cache('function_info') };
 }
-
 
 =head2 function_info(%args)
 
@@ -169,15 +170,13 @@ The number of arguments
 =cut
 
 sub function_info {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
     $args{funcschema} ||= 'public';
     $args{funcprefix} ||= '';
-    $args{funcname} = $args{funcprefix}.$args{funcname};
+    $args{funcname} = $args{funcprefix} . $args{funcname};
     $args{argschema} ||= 'public';
 
     my $dbh = $args{dbh} || croak 'No dbh provided';
-
-
 
     my $query = qq|
         SELECT proname, pronargs, proargnames,
@@ -187,9 +186,9 @@ sub function_info {
           JOIN pg_namespace pgn ON pgn.oid = pronamespace
          WHERE proname = ? AND nspname = ?
     |;
-    my @queryargs = ($args{funcname}, $args{funcschema});
-    if ($args{argtype1}) {
-       $query .= qq|
+    my @queryargs = ( $args{funcname}, $args{funcschema} );
+    if ( $args{argtype1} ) {
+        $query .= qq|
                AND (proargtypes::int[])[0] IN (select t.oid
                                                  from pg_type t
                                                  join pg_namespace n
@@ -197,20 +196,20 @@ sub function_info {
                                                 where typname = ?
                                                       AND n.nspname = ?
        )|;
-       push @queryargs, $args{argtype1};
-       push @queryargs, $args{argschema};
+        push @queryargs, $args{argtype1};
+        push @queryargs, $args{argschema};
     }
 
     my $sth = $dbh->prepare($query) || die $!;
     $sth->execute(@queryargs) || die $dbh->errstr . ": " . $query;
     my $ref = $sth->fetchrow_hashref('NAME_lc');
-    croak "transaction already aborted" if  $dbh->state eq '25P02';
-    croak "No such function" if !$ref;
+    croak "transaction already aborted"  if $dbh->state eq '25P02';
+    croak "No such function"             if !$ref;
     croak 'Ambiguous discovery criteria' if $sth->fetchrow_hashref('NAME_lc');
 
     my $f_args;
-    for my $n (@{$ref->{proargnames}}){
-        push @$f_args, {name => $n, type => shift @{$ref->{argtypes}}};
+    for my $n ( @{ $ref->{proargnames} } ) {
+        push @$f_args, { name => $n, type => shift @{ $ref->{argtypes} } };
     }
 
     return {
@@ -273,56 +272,61 @@ the framework level for this parameter.
 =cut
 
 sub call_procedure {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
     local $@;
     $args{funcschema} ||= 'public';
     $args{funcprefix} ||= '';
-    $args{funcname} = $args{funcprefix}.$args{funcname};
+    $args{funcname} = $args{funcprefix} . $args{funcname};
     $args{registry} ||= 'default';
 
     my $dbh = $args{dbh};
     croak "No database handle provided" unless $dbh;
-    croak "dbh not a database handle" unless eval {$dbh->isa('DBI::db')};
+    croak "dbh not a database handle" unless eval { $dbh->isa('DBI::db') };
 
     my $wf_string = '';
 
     $wf_string = join ', ', map {
-                         $_->{agg}
-                         . ' OVER (ROWS UNBOUNDED PRECEDING) AS '
-                         . $_->{alias}
-                 } @{$args{running_funcs}} if $args{running_funcs};
+              $_->{agg}
+            . ' OVER (ROWS UNBOUNDED PRECEDING) AS '
+            . $_->{alias}
+    } @{ $args{running_funcs} } if $args{running_funcs};
     $wf_string = ', ' . $wf_string if $wf_string;
 
     my @qargs = map {
-                      my $arg = $_;
-                      local ($@);
-                      $arg = $arg->to_db if eval {$arg->can('to_db')};
-                      $arg = $arg->pgobject_to_db if eval {$arg->can('pgobject_to_db')};
-                      $arg;
-                }  @{$args{args}};
+        my $arg = $_;
+        local ($@);
+        $arg = $arg->to_db          if eval { $arg->can('to_db') };
+        $arg = $arg->pgobject_to_db if eval { $arg->can('pgobject_to_db') };
+        $arg;
+    } @{ $args{args} };
 
     my $argstr = join ', ', map {
-                  (ref $_ and eval { $_->{cast} } ) ? "?::$_->{cast}" : '?';
-                  } @{$args{args}};
+        ( ref $_ and eval { $_->{cast} } ) ? "?::$_->{cast}" : '?';
+    } @{ $args{args} };
 
     my $order = '';
-    if ($args{orderby}){
-        $order = join(', ', map {
-                                  my $dir = undef;
-                                  if ( s/\s+(ASC|DESC)\s*$//i ) {
-                                      $dir = $1;
-                                  }
-                                  defined $dir ? $dbh->quote_identifier($_)
-                                                  . " $dir"
-                                               : $dbh->quote_identifier($_);
-                                } @{$args{orderby}});
+    if ( $args{orderby} ) {
+        $order = join(
+            ', ',
+            map {
+                my $dir = undef;
+                if (s/\s+(ASC|DESC)\s*$//i) {
+                    $dir = $1;
+                }
+                defined $dir
+                    ? $dbh->quote_identifier($_) . " $dir"
+                    : $dbh->quote_identifier($_);
+            } @{ $args{orderby} }
+        );
     }
     my $query = qq|
            SELECT * $wf_string
-             FROM | . $dbh->quote_identifier($args{funcschema}) . '.' .
-                      $dbh->quote_identifier($args{funcname}) . qq|($argstr) |;
-    if ($order){
-       $query .= qq|
+             FROM |
+        . $dbh->quote_identifier( $args{funcschema} ) . '.'
+        . $dbh->quote_identifier( $args{funcname} )
+        . qq|($argstr) |;
+    if ($order) {
+        $query .= qq|
          ORDER BY $order |;
     }
 
@@ -330,47 +334,48 @@ sub call_procedure {
 
     my $place = 1;
 
-    foreach my $carg (@qargs){
-        if (ref($carg) =~ /HASH/){
-            $sth->bind_param($place, $carg->{value},
-                       { pg_type => $carg->{type} });
-        } else {
+    foreach my $carg (@qargs) {
+        if ( ref($carg) =~ /HASH/ ) {
+            $sth->bind_param( $place, $carg->{value},
+                { pg_type => $carg->{type} } );
+        }
+        else {
 
             # This is used to support arrays of db-aware types.  Long-run
             # I think we should merge bytea support into this framework. --CT
-            if (ref($carg) =~ /ARRAY/){
-               local ($@);
-               if (eval{$carg->[0]->can('to_db')}){
-                  for my $ref(@$carg){
-                       $ref = $ref->to_db;
-                  }
-               }
+            if ( ref($carg) =~ /ARRAY/ ) {
+                local ($@);
+                if ( eval { $carg->[0]->can('to_db') } ) {
+                    for my $ref (@$carg) {
+                        $ref = $ref->to_db;
+                    }
+                }
             }
 
-            $sth->bind_param($place, $carg);
+            $sth->bind_param( $place, $carg );
         }
         ++$place;
     }
 
     $sth->execute() || die $dbh->errstr . ": " . $query;
 
-    clear_info_cache() if $dbh->state eq '42883'; # (No Such Function)
+    clear_info_cache() if $dbh->state eq '42883';    # (No Such Function)
 
     my @rows = ();
-    while (my $row = $sth->fetchrow_hashref('NAME_lc')){
-       my @types = @{$sth->{pg_type}};
-       my @names = @{$sth->{NAME_lc}};
-       my $i = 0;
-       for my $type (@types){
-           $row->{$names[$i]} =
-                 PGObject::Type::Registry->deserialize(
-                       registry => $args{registry},
-                       dbtype => $type, dbstring => $row->{$names[$i]}
-                 );
-           ++$i;
-       }
+    while ( my $row = $sth->fetchrow_hashref('NAME_lc') ) {
+        my @types = @{ $sth->{pg_type} };
+        my @names = @{ $sth->{NAME_lc} };
+        my $i     = 0;
+        for my $type (@types) {
+            $row->{ $names[$i] } = PGObject::Type::Registry->deserialize(
+                registry => $args{registry},
+                dbtype   => $type,
+                dbstring => $row->{ $names[$i] }
+            );
+            ++$i;
+        }
 
-       push @rows, $row;
+        push @rows, $row;
     }
     return @rows;
 }
@@ -388,8 +393,8 @@ This no longer returns anything of significance.
 
 =cut
 
-sub new_registry{
-    my ($self, $registry_name) = @_;
+sub new_registry {
+    my ( $self, $registry_name ) = @_;
     carp "Deprecated use of PGObject->new_registry()";
     PGObject::Type::Registry->new_registry($registry_name);
 }
@@ -412,12 +417,14 @@ Use PGObject::Type::Registry->register_type() instead.
 
 =cut
 
-sub register_type{
+sub register_type {
     carp 'Use of deprecated method register_type of PGObject module';
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    PGObject::Type::Registry->register_type(registry => $args{registry},
-          dbtype => $args{pg_type}, apptype => $args{perl_class}
+    PGObject::Type::Registry->register_type(
+        registry => $args{registry},
+        dbtype   => $args{pg_type},
+        apptype  => $args{perl_class}
     );
     return 1;
 }
@@ -433,13 +440,14 @@ instead.
 
 =cut
 
-sub unregister_type{
+sub unregister_type {
     carp 'Use of deprecated method unregister_type of PGObject';
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     $args{registry} ||= 'default';
     PGObject::Type::Registry->unregister_type(
-       registry => $args{registry}, dbtype =>  $args{pg_type}
+        registry => $args{registry},
+        dbtype   => $args{pg_type}
     );
 }
 
