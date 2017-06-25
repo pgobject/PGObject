@@ -7,7 +7,7 @@ PGObject::Type::Registry - Registration of types for handing db types
   PGObject::Type::Registry->add_registry('myapp'); # required
 
   PGObject::Type::Registry->register_type(
-     registry => 'myapp', dbtype => 'int4', 
+     registry => 'myapp', dbtype => 'int4',
      apptype => 'PGObject::Type::BigFloat'
   );
 
@@ -34,7 +34,7 @@ my %registry =  (default => {}) ;
 
 =head1 DESCRIPTION
 
-The PGObject type registry stores data for serialization and deserialization 
+The PGObject type registry stores data for serialization and deserialization
 relating to the database.
 
 =head1 USE
@@ -95,14 +95,14 @@ sub register_type {
     delete $args{registry} unless defined $args{registry};
     %args = (%defaults, %args);
     croak 'Registry does not exist yet' unless exists $registry{$args{registry}};
-    croak 'Type registered with different target' 
+    croak 'Type registered with different target'
         if exists $registry{$args{registry}}->{$args{dbtype}} and
            $registry{$args{registry}}->{$args{dbtype}} ne $args{apptype};
     $args{apptype} =~ /^(.*)::(\w*)$/;
     my ($parent, $final) = ($1, $2);
     $parent ||= '';
     $final ||= $args{apptype};
-    { 
+    {
        no strict 'refs';
     $parent = "${parent}::" if $parent;
     croak "apptype not yet loaded ($args{apptype})" unless exists ${"::${parent}"}{"${final}::"};
@@ -160,16 +160,16 @@ sub deserialize {
     no strict 'refs';
     return $args{dbstring} unless $registry{$args{registry}}->{$args{dbtype}};
 
-    return [ map { $self->deserialize(%args, dbstring => $_) } 
-             @{$args{dbstring}} 
+    return [ map { $self->deserialize(%args, dbstring => $_) }
+             @{$args{dbstring}}
     ] if $arraytype;
-    
+
     return "$registry{$args{registry}}->{$args{dbtype}}"->can('from_db')->($registry{$args{registry}}->{$args{dbtype}}, $args{dbstring}, $args{dbtype});
 }
 
 =head1 INSPECTING A REGISTRY
 
-Sometimes we need to see what types are registered.  To do this, we can 
+Sometimes we need to see what types are registered.  To do this, we can
 request a copy of the registry.
 
 =head2 inspect($name)
@@ -199,22 +199,22 @@ sub list {
 
 COPYRIGHT (C) 2017 The LedgerSMB Core Team
 
-Redistribution and use in source and compiled forms with or without 
+Redistribution and use in source and compiled forms with or without
 modification, are permitted provided that the following conditions are met:
 
 =over
 
-=item 
+=item
 
 Redistributions of source code must retain the above
 copyright notice, this list of conditions and the following disclaimer as the
 first lines of this file unmodified.
 
-=item 
+=item
 
 Redistributions in compiled form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
-source code, documentation, and/or other materials provided with the 
+source code, documentation, and/or other materials provided with the
 distribution.
 
 =back
