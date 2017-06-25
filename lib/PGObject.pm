@@ -273,8 +273,7 @@ the framework level for this parameter.
 =cut
 
 sub call_procedure {
-    my ($self) = shift @_;
-    my %args = @_;
+    my ($self, %args) = @_;
     local $@;
     $args{funcschema} ||= 'public';
     $args{funcprefix} ||= '';
@@ -415,8 +414,7 @@ Use PGObject::Type::Registry->register_type() instead.
 
 sub register_type{
     carp 'Use of deprecated method register_type of PGObject module';
-    my $self = shift @_;
-    my %args = @_;
+    my ($self, %args) = @_;
 
     PGObject::Type::Registry->register_type(registry => $args{registry},
           dbtype => $args{pg_type}, apptype => $args{perl_class}
@@ -437,8 +435,8 @@ instead.
 
 sub unregister_type{
     carp 'Use of deprecated method unregister_type of PGObject';
-    my $self = shift @_;
-    my %args = @_;
+    my ($self, %args) = @_;
+
     $args{registry} ||= 'default';
     PGObject::Type::Registry->unregister_type(
        registry => $args{registry}, dbtype =>  $args{pg_type}
