@@ -1,6 +1,10 @@
 package Foo;
 
+sub from_db { }; # needs to exist to be a valid class for registration
+
 package Foo2;
+
+sub from_db { }; # needs to exist to be a valid class for registration
 
 package main;
 
