@@ -108,7 +108,7 @@ sub register_type {
         croak "apptype not yet loaded ($args{apptype})"
             unless exists ${"::${parent}"}{"${final}::"};
         croak 'apptype does not have from_db function'
-            unless *{"$args{apptype}::from_db"};
+            unless $args{apptype}->can('from_db');
     }
     %args = ( %defaults, %args );
     $registry{ $args{registry} }->{ $args{dbtype} } = $args{apptype};
