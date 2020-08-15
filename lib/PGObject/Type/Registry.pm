@@ -150,28 +150,53 @@ This function returns the output of the from_db method.
 
 sub deserialize {
     my ( $self, %args ) = @_;
+
+    croak "Must specify dbstring arg"           unless exists $args{dbstring};
+    return $self->deserializer( %args )->( $args{dbstring} );
+}
+
+=head2 deserializer
+
+This returns a coderef to deserialize data from a db string. The coderef
+should be called with a single argument: the argument that would be passed
+as 'dbstring' into C<deserialize>. E.g.:
+
+   my $deserializer = PGObject::Type::Registry->deserializer(dbtype => $type);
+   my $value = $deserializer->($dbvalue);
+
+Mandatory argument is dbtype.
+The registry arg should be provided but if not, a warning will be issued and
+'default' will be used.
+
+This function returns the output of the C<from_db> method of the registered
+class.
+
+=cut
+
+sub deserializer {
+    my ( $self, %args ) = @_;
     my %defaults = ( registry => 'default' );
     carp 'No registry specified, using default' unless exists $args{registry};
     croak "Must specify dbtype arg"             unless $args{dbtype};
-    croak "Must specify dbstring arg"           unless exists $args{dbstring};
     %args = ( %defaults, %args );
     my $arraytype = 0;
     if ( $args{dbtype} =~ /^_/ ) {
         $args{dbtype} =~ s/^_//;
         $arraytype = 1;
     }
-    no strict 'refs';
-    return $args{dbstring}
+
+    return sub { shift }
         unless $registry{ $args{registry} }->{ $args{dbtype} };
 
-    return [ map { $self->deserialize( %args, dbstring => $_ ) }
-            @{ $args{dbstring} } ]
-        if $arraytype;
+    if ($arraytype) {
+        my $deserializer = $self->deserializer( %args );
+        return sub { [ map { $deserializer->( $_ ) } @{ (shift) } ] };
+    }
 
-    return "$registry{$args{registry}}->{$args{dbtype}}"->can('from_db')->(
-        $registry{ $args{registry} }->{ $args{dbtype} },
-        $args{dbstring}, $args{dbtype}
-    );
+    my $clazz = $registry{ $args{registry} }->{ $args{dbtype} };
+    my $from_db = $clazz->can('from_db');
+    my $dbtype = $args{dbtype};
+    return sub { $from_db->($clazz, (shift), $dbtype); }
 }
 
 =head1 INSPECTING A REGISTRY
@@ -204,7 +229,7 @@ sub list {
 
 =head1 COPYRIGHT AND LICENSE
 
-COPYRIGHT (C) 2017 The LedgerSMB Core Team
+COPYRIGHT (C) 2017-2020 The LedgerSMB Core Team
 
 Redistribution and use in source and compiled forms with or without
 modification, are permitted provided that the following conditions are met:
