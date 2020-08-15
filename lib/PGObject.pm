@@ -13,13 +13,15 @@ use Carp;
 use Memoize;
 use PGObject::Type::Registry;
 
+use List::MoreUtils qw/pairwise/;
+
 =head1 VERSION
 
-Version 2.0.0
+Version 2.1.0
 
 =cut
 
-our $VERSION = 2.000001;
+our $VERSION = '2.1.0';
 
 =head1 SYNPOSIS
 
@@ -362,20 +364,16 @@ sub call_procedure {
     clear_info_cache() if $dbh->state eq '42883';    # (No Such Function)
 
     my @rows = ();
-    while ( my $row = $sth->fetchrow_hashref('NAME_lc') ) {
-        my @types = @{ $sth->{pg_type} };
-        my @names = @{ $sth->{NAME_lc} };
-        my $i     = 0;
-        for my $type (@types) {
-            $row->{ $names[$i] } = PGObject::Type::Registry->deserialize(
-                registry => $args{registry},
-                dbtype   => $type,
-                dbstring => $row->{ $names[$i] }
-            );
-            ++$i;
-        }
-
-        push @rows, $row;
+    my %deserializers = (
+        pairwise { $a => PGObject::Type::Registry->deserializer(
+                       registry => $args{registry},
+                       dbtype   => $b,
+                       )
+        } @{ $sth->{NAME_lc} }, @{ $sth->{pg_type} } );
+    while (my $row = $sth->fetchrow_hashref('NAME_lc')) {
+        push @rows, {
+            map { $_ => $deserializers{$_}->( $row->{$_} )  } keys %$row
+        };
     }
     return @rows;
 }

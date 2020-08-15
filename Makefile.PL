@@ -18,6 +18,7 @@ WriteMakefile(
                            'Try::Tiny' => 0,
                            'Test::Exception' => 0,
                            'Memoize'  => 0,
+                           'List::MoreUtils' => 0.07,
                            },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'PGObject-*' },
