@@ -8,6 +8,7 @@ WriteMakefile(
     AUTHOR              => q{Chris Travers <chris.travers@gmail.com>},
     VERSION_FROM        => 'lib/PGObject.pm',
     ABSTRACT_FROM       => 'lib/PGObject.pm',
+    MIN_PERL_VERSION    => '5.010',
     PL_FILES            => {},
     ($ExtUtils::MakeMaker::VERSION >= 6.3002
       ? ('LICENSE'=> 'bsd')
