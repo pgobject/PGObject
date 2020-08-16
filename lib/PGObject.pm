@@ -17,11 +17,11 @@ use List::MoreUtils qw/pairwise/;
 
 =head1 VERSION
 
-Version 2.1.0
+Version 2.2.0
 
 =cut
 
-our $VERSION = '2.1.0';
+our $VERSION = '2.2.0';
 
 =head1 SYNPOSIS
 
@@ -364,16 +364,14 @@ sub call_procedure {
     clear_info_cache() if $dbh->state eq '42883';    # (No Such Function)
 
     my @rows = ();
-    my %deserializers = (
-        pairwise { $a => PGObject::Type::Registry->deserializer(
-                       registry => $args{registry},
-                       dbtype   => $b,
-                       )
-        } @{ $sth->{NAME_lc} }, @{ $sth->{pg_type} } );
+    my $row_deserializer =
+        PGObject::Type::Registry->rowhash_deserializer(
+            registry => $args{registry},
+            types    => $sth->{pg_type},
+            columns  => $sth->{NAME_lc},
+        );
     while (my $row = $sth->fetchrow_hashref('NAME_lc')) {
-        push @rows, {
-            map { $_ => $deserializers{$_}->( $row->{$_} )  } keys %$row
-        };
+        push @rows, $row_deserializer->( $row );
     }
     return @rows;
 }
@@ -666,6 +664,8 @@ source code, documentation, and/or other materials provided with the
 distribution.
 
 =back
+
+=head1 LICENSE
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
