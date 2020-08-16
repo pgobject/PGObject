@@ -24,12 +24,18 @@ PGObject::Type::Registry - Registration of types for handing db types
 =cut
 
 package PGObject::Type::Registry;
+
 use strict;
 use warnings;
-use Try::Tiny;
-use Carp;
 
-our $VERSION = 1.000000;
+
+use Carp;
+use List::MoreUtils qw(pairwise);
+use Scalar::Util qw(reftype);
+use Try::Tiny;
+
+
+our $VERSION = '2.2.0';
 
 my %registry = ( default => {} );
 
@@ -185,7 +191,7 @@ sub deserializer {
         $arraytype = 1;
     }
 
-    return sub { shift }
+    return $args{_unmapped_undef} ? undef : sub { shift }
         unless $registry{ $args{registry} }->{ $args{dbtype} };
 
     if ($arraytype) {
@@ -197,6 +203,62 @@ sub deserializer {
     my $from_db = $clazz->can('from_db');
     my $dbtype = $args{dbtype};
     return sub { $from_db->($clazz, (shift), $dbtype); }
+}
+
+=head2 rowhash_deserializer
+
+This returns a coderef to deserialize data from a call to e.g.
+C<fetchrow_arrayref>. The coderef should be called with a single argument:
+the hash that holds the row values with the keys being the column names.
+
+Mandatory argument is C<types>, which is either an arrayref or hashref.
+In case of a hashref, the keys are the names of the columns to be expected
+in the data hashrefs. The values are the types (same as the C<dbtype>
+parameter of the C<deserialize> method). In case of an arrayref, an additional
+argument C<columns> is required, containing the names of the columns in the
+same order as C<types>.
+
+The registry arg should be provided but if not, a warning will be issued and
+'default' will be used.
+
+This function returns the output of the C<from_db> method of the registered
+class.
+
+=cut
+
+sub rowhash_deserializer {
+    my ( $self, %args ) = @_;
+    my %defaults = ( registry => 'default' );
+    carp 'No registry specified, using default' unless exists $args{registry};
+    croak 'No types specied'                    unless exists $args{types};
+
+    %args = ( %defaults, %args );
+    my $types = $args{types};
+
+    if (reftype $types eq 'ARRAY') {
+        croak 'No columns specified'            unless exists $args{columns};
+
+        $types = { pairwise { $a => $b } @{$args{columns}}, @$types };
+    }
+
+    my %column_deserializers =
+        map { $_ => $self->deserializer(dbtype          => $types->{$_},
+                                        registry        => $args{registry},
+                                        _unmapped_undef => 1)  } keys %$types;
+    for (keys %column_deserializers) {
+        if (not defined $column_deserializers{$_}) {
+            delete $column_deserializers{$_}
+        }
+    }
+    return sub {
+        my $row = shift;
+
+        for my $col (keys %column_deserializers) {
+            $row->{$col} =
+                $column_deserializers{$col}->( $row->{$col} );
+        }
+        return $row;
+    }
 }
 
 =head1 INSPECTING A REGISTRY

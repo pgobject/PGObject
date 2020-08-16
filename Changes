@@ -1,5 +1,10 @@
 Revision history for PGObject
 
+2.2.0   2020-08-16
+        Add `rowhash_deserializer` to allocate an efficient row deserializer
+        as returned from `fetchrow_hashref`.
+        Fix two Kwalitee 'extra'-category warnings (license, mixed versions)
+
 2.1.0   2020-08-15
         Add `deserializer` method as a performance optimization for repeated
         calls to `deserialize`
