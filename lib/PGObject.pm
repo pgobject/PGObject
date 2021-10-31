@@ -11,7 +11,6 @@ use strict;
 use warnings;
 
 use Carp::Clan qr/^PGObject\b/;
-use List::MoreUtils qw/pairwise/;
 use Log::Any qw($log);
 use Memoize;
 
@@ -181,7 +180,7 @@ sub function_info {
     $args{funcname} = $args{funcprefix} . $args{funcname};
     $args{argschema} ||= 'public';
 
-    my $dbh = $args{dbh} || croak 'No dbh provided';
+    my $dbh = $args{dbh} || croak $log->error( 'No dbh provided' );
 
     my $query = qq|
         SELECT proname, pronargs, proargnames,
@@ -300,8 +299,10 @@ sub call_procedure {
     $args{registry} ||= 'default';
 
     my $dbh = $args{dbh};
-    croak "No database handle provided" unless $dbh;
-    croak "dbh not a database handle" unless eval { $dbh->isa('DBI::db') };
+    croak $log->error( "No database handle provided" )
+        unless $dbh;
+    croak $log->error( "dbh not a database handle" )
+        unless eval { $dbh->isa('DBI::db') };
 
     my $wf_string = '';
 
@@ -409,7 +410,7 @@ This no longer returns anything of significance.
 
 sub new_registry {
     my ( $self, $registry_name ) = @_;
-    carp "Deprecated use of PGObject->new_registry()";
+    carp $log->warn( "Deprecated use of PGObject->new_registry()" );
     PGObject::Type::Registry->new_registry($registry_name);
 }
 
@@ -432,7 +433,7 @@ Use PGObject::Type::Registry->register_type() instead.
 =cut
 
 sub register_type {
-    carp 'Use of deprecated method register_type of PGObject module';
+    carp $log->warn( 'Use of deprecated method register_type of PGObject module' );
     my ( $self, %args ) = @_;
 
     PGObject::Type::Registry->register_type(
@@ -455,7 +456,7 @@ instead.
 =cut
 
 sub unregister_type {
-    carp 'Use of deprecated method unregister_type of PGObject';
+    carp $log->warn( 'Use of deprecated method unregister_type of PGObject' );
     my ( $self, %args ) = @_;
 
     $args{registry} ||= 'default';

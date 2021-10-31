@@ -31,8 +31,8 @@ use warnings;
 
 use Carp::Clan qr/^PGObject\b/;
 use List::MoreUtils qw(pairwise);
+use Log::Any qw($log);
 use Scalar::Util qw(reftype);
-use Try::Tiny;
 
 
 our $VERSION = '2.3.0';
@@ -94,14 +94,17 @@ A warning is thrown if no
 sub register_type {
     my ( $self, %args ) = @_;
     my %defaults = ( registry => 'default' );
-    carp 'Using default registry'    unless $args{registry};
-    croak 'Must provide dbtype arg'  unless $args{dbtype};
-    croak 'Must provide apptype arg' unless $args{apptype};
+    carp $log->warn( 'Using default registry' )
+        unless $args{registry};
+    croak $log->error( 'Missing dbtype arg' )
+        unless $args{dbtype};
+    croak $log->error( 'Missing apptype arg' )
+        unless $args{apptype};
     delete $args{registry}           unless defined $args{registry};
     %args = ( %defaults, %args );
-    croak 'Registry does not exist yet'
+    croak $log->error( 'Registry does not exist yet' )
         unless exists $registry{ $args{registry} };
-    croak 'Type registered with different target'
+    croak $log->error( 'Type registered with different target' )
         if exists $registry{ $args{registry} }->{ $args{dbtype} }
         and $registry{ $args{registry} }->{ $args{dbtype} } ne $args{apptype};
     $args{apptype} =~ /^(.*)::(\w*)$/;
@@ -123,7 +126,7 @@ sub register_type {
 =head1 UNREGISTERING A TYPE
 
 To unregister a type, you provide the dbtype and registry information, both
-of which are required.  Note that at that this is rarely needed.
+of which are required.  Note that at this time this is rarely needed.
 
 =head2 unregister_type
 
@@ -131,11 +134,13 @@ of which are required.  Note that at that this is rarely needed.
 
 sub unregister_type {
     my ( $self, %args ) = @_;
-    croak 'Must provide registry'   unless $args{registry};
-    croak 'Must provide dbtype arg' unless $args{dbtype};
-    croak 'Registry does not exist yet'
+    croak $log->error( 'Missing registry' )
+        unless $args{registry};
+    croak $log->error( 'Missing dbtype arg' )
+        unless $args{dbtype};
+    croak $log->error( 'Registry does not exist yet' )
         unless exists $registry{ $args{registry} };
-    croak 'Type not registered'
+    carp $log->warn( 'Type not registered' )
         unless $registry{ $args{registry} }->{ $args{dbtype} };
     delete $registry{ $args{registry} }->{ $args{dbtype} };
 }
@@ -157,7 +162,8 @@ This function returns the output of the from_db method.
 sub deserialize {
     my ( $self, %args ) = @_;
 
-    croak "Must specify dbstring arg"           unless exists $args{dbstring};
+    croak $log->error( "Missing dbstring arg" )
+        unless exists $args{dbstring};
     return $self->deserializer( %args )->( $args{dbstring} );
 }
 
@@ -182,8 +188,10 @@ class.
 sub deserializer {
     my ( $self, %args ) = @_;
     my %defaults = ( registry => 'default' );
-    carp 'No registry specified, using default' unless exists $args{registry};
-    croak "Must specify dbtype arg"             unless $args{dbtype};
+    carp $log->info( 'No registry specified, using default' )
+        unless exists $args{registry};
+    croak $log->error( "Missing dbtype arg" )
+        unless $args{dbtype};
     %args = ( %defaults, %args );
     my $arraytype = 0;
     if ( $args{dbtype} =~ /^_/ ) {
@@ -229,14 +237,17 @@ class.
 sub rowhash_deserializer {
     my ( $self, %args ) = @_;
     my %defaults = ( registry => 'default' );
-    carp 'No registry specified, using default' unless exists $args{registry};
-    croak 'No types specied'                    unless exists $args{types};
+    carp $log->warn( 'No registry specified, using default' )
+        unless exists $args{registry};
+    croak $log->error( 'No types specied' )
+        unless exists $args{types};
 
     %args = ( %defaults, %args );
     my $types = $args{types};
 
     if (reftype $types eq 'ARRAY') {
-        croak 'No columns specified'            unless exists $args{columns};
+        croak $log->error( 'No columns specified' )
+            unless exists $args{columns};
 
         $types = { pairwise { $a => $b } @{$args{columns}}, @$types };
     }
@@ -274,8 +285,10 @@ $name is required.  If it does not exist an exception is thrown.
 
 sub inspect {
     my ( $self, $name ) = @_;
-    croak 'Must specify a name' unless $name;
-    croak 'Registry does not exist' unless exists $registry{$name};
+    croak $log->error( 'Must specify a name' )
+        unless $name;
+    croak $log->error( 'Registry does not exist' )
+        unless exists $registry{$name};
     return { %{ $registry{$name} } };
 }
 
