@@ -35,7 +35,7 @@ use Scalar::Util qw(reftype);
 use Try::Tiny;
 
 
-our $VERSION = '2.2.0';
+our $VERSION = '2.3.0';
 
 my %registry = ( default => {} );
 

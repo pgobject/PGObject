@@ -20,11 +20,11 @@ use PGObject::Type::Registry;
 
 =head1 VERSION
 
-Version 2.2.0
+Version 2.3.0
 
 =cut
 
-our $VERSION = '2.2.0';
+our $VERSION = '2.3.0';
 
 =head1 SYNPOSIS
 
