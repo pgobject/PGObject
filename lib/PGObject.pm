@@ -206,11 +206,26 @@ sub function_info {
     }
 
     my $sth = $dbh->prepare($query) || die $!;
-    $sth->execute(@queryargs) || die $dbh->errstr . ": " . $query;
+    my $rows = $sth->execute(@queryargs) || die $dbh->errstr . ": " . $query;
+    if ($rows > 1) {
+        if ($args{argtype1}) {
+            croak $log->fatalf(
+                'Ambiguous criteria discovering function %s.%s (with first argument type %s)',
+                $args{funcschema}, $args{funcname}, $args{argtype1}
+                );
+        }
+        else {
+            croak $log->fatalf(
+                'Ambiguous criteria discovering function %s.%s',
+                $args{funcschema}, $args{funcname}
+                );
+        }
+    }
+    elsif ($rows == 0) {
+        croak $log->fatalf( 'No such function: %s.%s',
+                            $args{funcschema}, $args{funcname} );
+    }
     my $ref = $sth->fetchrow_hashref('NAME_lc');
-    croak "transaction already aborted"  if $dbh->state eq '25P02';
-    croak "No such function"             if !$ref;
-    croak 'Ambiguous discovery criteria' if $sth->fetchrow_hashref('NAME_lc');
 
     my $f_args;
     for my $n ( @{ $ref->{proargnames} } ) {
