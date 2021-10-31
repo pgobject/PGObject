@@ -1,5 +1,14 @@
 Revision history for PGObject
 
+2.3.0   to-be-released
+      * Better formatting of COPYRIGHT section in POD
+      * Update SUPPORT section in POD
+      * Replace Carp with Carp::Clan for better error reporting
+      * Improve some error messages to include some context
+        (notably the object being complained about)
+      * Remove Try::Tiny module from dependencies (unused)
+      * Add Log::Any to dependencies for error logging
+
 2.2.1   2020-08-30
       * MetaCPAN parseable bulleted lists in Changes
 
