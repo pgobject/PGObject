@@ -6,14 +6,17 @@ PGObject - A toolkit integrating intelligent PostgreSQL dbs into Perl objects
 =cut
 
 package PGObject;
+
 use strict;
 use warnings;
 
-use Carp;
-use Memoize;
-use PGObject::Type::Registry;
-
+use Carp::Clan qr/^PGObject\b/;
 use List::MoreUtils qw/pairwise/;
+use Log::Any qw($log);
+use Memoize;
+
+
+use PGObject::Type::Registry;
 
 =head1 VERSION
 

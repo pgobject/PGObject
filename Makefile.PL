@@ -14,15 +14,17 @@ WriteMakefile(
       ? ('LICENSE'=> 'bsd')
       : ()),
     PREREQ_PM           => {
-                           'DBD::Pg'    => 2.0,
-                           'Try::Tiny' => 0,
-                           'Memoize'  => 0,
-                           'List::MoreUtils' => 0.07,
+        'Carp::Clan' => 0,
+        'DBD::Pg'    => 2.0,
+        'Try::Tiny' => 0,
+        'Memoize'  => 0,
+        'Log::Any' => 0,
+        'List::MoreUtils' => 0.07,
                            },
     TEST_REQUIRES       => {
-                           'Test::More' => 0,
-                           'Test::Exception' => 0,
-                           },
+        'Test::More' => 0,
+        'Test::Exception' => 0,
+    },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'PGObject-*' },
     META_MERGE => {

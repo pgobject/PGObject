@@ -29,7 +29,7 @@ use strict;
 use warnings;
 
 
-use Carp;
+use Carp::Clan qr/^PGObject\b/;
 use List::MoreUtils qw(pairwise);
 use Scalar::Util qw(reftype);
 use Try::Tiny;
