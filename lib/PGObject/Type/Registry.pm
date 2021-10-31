@@ -291,7 +291,7 @@ sub list {
 
 =head1 COPYRIGHT AND LICENSE
 
-COPYRIGHT (C) 2017-2020 The LedgerSMB Core Team
+COPYRIGHT (C) 2017-2021 The LedgerSMB Core Team
 
 Redistribution and use in source and compiled forms with or without
 modification, are permitted provided that the following conditions are met:
