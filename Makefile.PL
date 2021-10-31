@@ -16,7 +16,6 @@ WriteMakefile(
     PREREQ_PM           => {
         'Carp::Clan' => 0,
         'DBD::Pg'    => 2.0,
-        'Try::Tiny' => 0,
         'Memoize'  => 0,
         'Log::Any' => 0,
         'List::MoreUtils' => 0.07,
