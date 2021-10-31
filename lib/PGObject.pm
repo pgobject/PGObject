@@ -605,17 +605,9 @@ You can also look for information at:
 
 L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=PGObject>
 
-=item * AnnoCPAN: Annotated CPAN documentation
+=item * MetaCPAN
 
-L<http://annocpan.org/dist/PGObject>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/PGObject>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/PGObject/>
+L<https://metacpan.org/dist/PGObject>
 
 =back
 
