@@ -1,6 +1,6 @@
 Revision history for PGObject
 
-2.3.0   to-be-released
+2.3.0   2021-11-07
       * Better formatting of COPYRIGHT section in POD
       * Update SUPPORT section in POD
       * Replace Carp with Carp::Clan for better error reporting
