@@ -1,5 +1,8 @@
 Revision history for PGObject
 
+2.3.1   2021-11-07
+      * Fix test expectation
+
 2.3.0   2021-11-07
       * Better formatting of COPYRIGHT section in POD
       * Update SUPPORT section in POD

@@ -35,7 +35,7 @@ use Log::Any qw($log);
 use Scalar::Util qw(reftype);
 
 
-our $VERSION = '2.3.0';
+our $VERSION = '2.3.1';
 
 my %registry = ( default => {} );
 
