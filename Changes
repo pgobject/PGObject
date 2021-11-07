@@ -1,5 +1,10 @@
 Revision history for PGObject
 
+2.3.2   2021-11-07
+      * `$sth->rows` works for SELECT queries on DBD::Mock *and* DBD::Pg
+        whereas `$sth->execute()` only returns the number of rows on
+        DBD::Pg
+
 2.3.1   2021-11-07
       * Fix test expectation
 

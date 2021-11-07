@@ -19,11 +19,11 @@ use PGObject::Type::Registry;
 
 =head1 VERSION
 
-Version 2.3.1
+Version 2.3.2
 
 =cut
 
-our $VERSION = '2.3.1';
+our $VERSION = '2.3.2';
 
 =head1 SYNPOSIS
 
@@ -205,7 +205,8 @@ sub function_info {
     }
 
     my $sth = $dbh->prepare($query) || die $!;
-    my $rows = $sth->execute(@queryargs) || die $dbh->errstr . ": " . $query;
+    $sth->execute(@queryargs) || die $dbh->errstr . ": " . $query;
+    my $rows = $sth->rows;
     if ($rows > 1) {
         if ($args{argtype1}) {
             croak $log->fatalf(
