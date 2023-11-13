@@ -1,10 +1,10 @@
 =head1 NAME
 
-   PGObject::UTil::DBException -- Database Exceptions for PGObject
+   PGObject::Util::DBException -- Database Exceptions for PGObject
 
 =cut
 
-package PGObject::UTil::DBException;
+package PGObject::Util::DBException;
 
 =head1 VERSION
 
@@ -46,7 +46,7 @@ our $VERSION = '2.4.0';
 
 use strict;
 use warnings;
-use overload '""' => 'short_str';
+use overload '""' => 'short_string';
 use DBI;
 
 our $STRINGIFY_STACKTRACE = 1;
@@ -192,7 +192,7 @@ sub log_msg ($) {
     my $string = join "\n",
        "STATE $self->{state}, $self->{errstr}",
        "Query: $query",
-       "Args:" . (join ',', @{$self->{args}}),
+       "Args: " . (join ',', @{$self->{args}}),
        ($self->{trace} ? "Trace: $self->{trace}" : ());
     return $string;
 }
